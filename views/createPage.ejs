@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/icons8-books-doodle-favicons/Web/icons8-books-doodle-16.png">
+    <title><%= title %></title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #bdc3c7;
+            padding: 10px 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info h1 {
+            margin: 0;
+            margin-right: 10px;
+        }
+
+        .user-info a {
+            color: #10b981;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .user-info a:hover {
+            text-decoration: underline;
+        }
+
+        .main-content {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 20px;
+        }
+
+        .course-info {
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 20px;
+        }
+
+        .course-info h1 {
+            font-size: 1.5rem;
+            margin: 0 0 10px;
+        }
+
+        .chapter-info {
+            margin-bottom: 20px;
+        }
+
+        .chapter-info h2 {
+            font-size: 1.25rem;
+            margin: 0 0 10px;
+        }
+
+        .pages-list {
+            list-style-type: decimal;
+            padding: 0;
+        }
+
+        .pages-list li {
+            margin-bottom: 20px;
+        }
+
+        .new-page-form {
+            margin-top: 20px;
+            border-top: 2px solid #bdc3c7;
+            padding-top: 20px;
+        }
+
+        .new-page-form label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .new-page-form input,
+        .new-page-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .new-page-form button {
+            background-color: #10b981;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .new-page-form button:hover {
+            background-color: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <%- include ('header.ejs') %>
+            <div class="user-info">
+                <h1><%= currentUser.firstName %> <%= currentUser.lastName %></h1>
+                <a href="/signout">Signout</a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="course-info">
+                <h1>Course: <%= course.courseName %></h1>
+            </div>
+
+            <div class="chapter-info">
+                <h2>Chapter: <%= chapter.chapterName %></h2>
+                <p><strong>Description:</strong> <%= chapter.chapterDescription %></p>
+            </div>
+
+            <div class="pages-list">
+                <% if (pages.length === 0) { %>
+                    <h3>No pages available</h3>
+                <% } else if (currentUser.role == "teacher") { %>
+                    <ol>
+                        <% for (let page of pages) { %>
+                            <li>
+                                <div class="page-item">
+                                    <h2><%= page.title %></h2>
+                                    <p><%= page.content %></p>
+                                </div>
+                            </li>
+                        <% } %>
+                    </ol>
+                <% } %>
+            </div>
+
+            <% if(userOfCourse.id === currentUser.id) { %>
+                <div class="new-page-form">
+                    <h1>Create a New Page</h1>
+                    <form action="/view-chapter/<%= chapterId %>/createpage?currentUserId=<%= currentUser.id %>" method="post" autocomplete="on">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <input type="hidden" name="chapterId" value="<%= chapterId %>">
+                        <label for="pageName">Page Title:</label>
+                        <input type="text" name="pageName" id="pageName" required>
+                        <label for="pageContent">Page Content:</label>
+                        <textarea name="pageContent" id="pageContent" rows="4" required></textarea>
+                        <button type="submit">Create Page</button>
+                    </form>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

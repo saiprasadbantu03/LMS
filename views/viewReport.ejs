@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/icons8-books-doodle-favicons/Web/icons8-books-doodle-16.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title><%= title %></title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-b: 2px solid #bdc3c7;
+            padding: 1rem;
+            background-color: #ffffff;
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-info h1 {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .user-info a {
+            color: #38a169;
+            text-decoration: none;
+            font-size: 1.125rem;
+            font-weight: bold;
+        }
+
+        .courses-section {
+            margin-top: 2rem;
+        }
+
+        .course-card {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-card h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .course-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .course-info p {
+            font-size: 1rem;
+            color: #4a90e2;
+            margin-bottom: 0.5rem;
+        }
+
+        .delete-btn {
+            background-color: #e3342f;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .delete-btn:hover {
+            background-color: #c62828;
+        }
+
+        hr {
+            border: 1px solid #e2e8f0;
+            margin: 2rem 0;
+        }
+    </style>
+    <script>
+        var token = document.querySelector("meta[name='csrf-token']").getAttribute("content");
+
+        function deleteCourse(courseId) {
+            fetch(`/courses/${courseId}`, {
+                    method: "delete",
+                    headers: {
+                        "Content-type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "_csrf": token
+                    })
+                })
+                .then((res) => {
+                    if (res.ok) {
+                        console.log("Course deleted successfully");
+                        window.location.reload();
+                    } else {
+                        console.error("Failed to delete course");
+                    }
+                })
+                .catch((error) => console.error(error));
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100">
+    <div class="container">
+        <div class="header">
+            <h2>Reports</h2>
+            <div class="user-info">
+                <h1><%= currentUser.firstName %> <%= currentUser.lastName %></h1>
+                <a href="/signout" class="text-green-600">Signout</a>
+            </div>
+        </div>
+
+        <a href="/teacher-dashboard" class="text-blue-600 text-sm font-semibold border-b-2 py-2 block">Back to Dashboard</a>
+
+        <div class="courses-section">
+            <p class="text-2xl font-semibold mb-4">Your courses:</p>
+
+            <!-- Number of Courses Created -->
+            <div class="bg-white p-4 rounded-lg shadow mb-4">
+                <p class="text-xl font-semibold">Total Courses created by you - <%= courses.length %></p>
+            </div>
+
+            <!-- List of Your Courses -->
+            <div>
+                <% courses.forEach((course, index) => { %>
+                    <div class="course-card">
+                        <% if (course.enrollmentCount === courses[0].enrollmentCount && course.enrollmentCount != 0) { %>
+                            <p class="text-lg italic text-green-600 font-semibold underline">Most Popular by you</p>
+                        <% } %>
+                        <h3 class="text-xl font-bold mb-2"><%= course.courseName %></h3>
+                        <div class="course-info">
+                            <p class="font-medium">Students Enrolled - <%= course.enrollmentCount %></p>
+                            <button class="delete-btn" onclick="deleteCourse(<%= course.id %>)">Delete</button>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+
+        <!-- List of All Courses with Enrollments -->
+        <hr>
+
+        <div class="courses-section">
+            <p class="text-2xl font-semibold mb-4">All courses:</p>
+
+            <!-- Number of All Courses -->
+            <div class="bg-white p-4 rounded-lg shadow mb-4">
+                <p class="text-xl font-semibold">Total Courses on platform - <%= allCourses.length %></p>
+            </div>
+
+            <!-- List of All Courses -->
+            <div>
+                <% allCourses.forEach((course, index) => { %>
+                    <div class="course-card">
+                        <% if (course.enrollmentCount === allCourses[0].enrollmentCount && course.enrollmentCount != 0) { %>
+                            <p class="text-lg italic text-green-600 font-semibold underline">Most Popular</p>
+                        <% } %>
+                        <h3 class="text-xl font-bold mb-2"><%= course.courseName %></h3>
+                        <p class="font-medium">Owner - <%= course.userFName %> <%= course.userLName %></p>
+                        <p class="text-blue-700 font-medium">Enrollments - <%= course.enrollmentCount %></p>
+                        <!-- Add your delete button or other actions if needed -->
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

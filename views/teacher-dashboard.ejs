@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <link rel="stylesheet" href="./css/styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/icons8-books-doodle-favicons/Web/icons8-books-doodle-16.png">
+    <title><%= title %></title>
+    <style>
+        /* Add your custom styles here */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            margin: 0 auto;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        main section {
+            margin: 0 auto;
+        }
+
+        .py-4 {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        .flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        a {
+            color: #27ae60;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        nav {
+            display: flex;
+            flex-direction: column;
+            background-color: #ffeb3b;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        .nav-link {
+            background-color: #3f51b5;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .nav-link:hover {
+            background-color: #303f9f;
+        }
+
+        hr {
+            margin: 1rem auto;
+            border: none;
+            height: 2px;
+            background-color: #bdc3c7;
+        }
+
+        .search-input {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border: 1px solid #bdc3c7;
+            border-radius: 0.375rem;
+        }
+
+        .course-card {
+            background-color: #fff;
+            border: 1px solid #bdc3c7;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .course-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .course-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .error-message {
+            background-color: #e74c3c;
+            color: #fff;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <%- include ('header.ejs') %>
+    </header>
+
+    <!-- Main Content Section -->
+    <main>
+        <section class="py-4 flex flex-col">
+            <!-- User Information -->
+            <div class="py-2 border-b-2 m-2 flex justify-between">
+                <h1>Welcome, <br> Educator: <%= currentUser.firstName %> <%= currentUser.lastName %> </h1>
+                <a href="/signout" class="text-green-600 text-xl font-semibold">Signout</a>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav>
+                <a href="/createcourse" class="nav-link">Create a New Course</a>
+                <a href="/teaMyCourses" class="nav-link">My Courses</a>
+                <a href="/view-report" class="nav-link">View Report</a>
+                <a href="/changePassword" class="nav-link">Change Password</a>
+            </nav>
+            <hr>
+        </section>
+
+        <!-- Course Container Section -->
+        <section id="courseContainer" class="space-y-4">
+            <!-- Search Courses Section -->
+            <div class="mb-4">
+                <label for="search" class="text-sm font-bold text-gray-700">Search Courses:</label>
+                <input type="text" id="search" name="search" class="search-input">
+            </div>
+
+            <!-- Course Cards Section -->
+            <% for (let course of courses) { %>
+                <a href="/view-course/<%= course.id %>?currentUserId=<%= encodeURIComponent(currentUser.id) %>" class="course-card bg-white border border-gray-300 p-4 rounded-lg shadow-lg hover:shadow-xl transition duration-300" style="display: none;">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="course-name text-xl font-bold">
+                            <%= course.courseName %>
+                        </h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-500 hover:text-gray-700 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                    <% for(let user of users) { %>
+                        <% if(user.id === course.userId) { %>
+                            <p class="text-sm text-gray-600 mb-2">by <%= user.firstName %> <%= user.lastName %></p>
+                        <% } %>
+                    <% } %>
+                </a>
+            <% } %>
+                        
+        </section>
+    </main>
+
+    <!-- Display Existing Courses Section -->
+    <section>
+        <%- include ('displayCourses.ejs', {currentUser, courses, users}) %>
+    </section>
+
+    <!-- Error Messages Section -->
+    <section>
+        <% if(messages && messages.error && messages.error.length > 0)  { %>
+            <% for(var i=0; i<messages.error.length; i++) { %>
+                <p class="error-message"><%= messages.error[i] %></p>
+            <% } %>
+        <% } %>
+    </section>
+
+    <!-- JavaScript Section -->
+    <script>
+        // Add your JavaScript code here
+        function filterCourses() {
+            const searchInput = document.getElementById('search').value.toLowerCase();
+            const courseCards = document.querySelectorAll('.course-card');
+
+            courseCards.forEach(card => {
+                const courseName = card.querySelector('.course-name').textContent.toLowerCase();
+
+                // showing or hide the card based on the search
+                if (searchInput.length > 0 && courseName.includes(searchInput)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Attach the function to the input's "input" event
+        document.getElementById('search').addEventListener('input', filterCourses);
+    </script>
+
+</body>
+
+</html>
